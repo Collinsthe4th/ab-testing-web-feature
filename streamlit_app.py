@@ -25,13 +25,16 @@ from abtest.stats import (  # noqa: E402
     required_sample_size,
 )
 
-st.set_page_config(page_title="Landing Page A/B Test", page_icon="🧪", layout="wide")
+st.set_page_config(page_title="A/B Test of a New Landing Page", layout="wide")
+
+HEADER = "https://images.unsplash.com/photo-1527689368864-3a821dbccc34?auto=format&fit=crop&w=1600&h=340&q=80"
+st.image(HEADER, use_container_width=True)
 
 df = load()
 old, new = df[df["landing_page"] == "old"], df[df["landing_page"] == "new"]
 
-st.title("🧪 A/B Test: New Landing Page against the Current Page")
-st.caption("100 users of an online news portal, split at random into two groups of 50.")
+st.title("A/B Test of a New Landing Page")
+st.caption("100 users of an online news portal were split at random into two groups of 50. The control group saw the old page and the treatment group saw the new page. Change the settings in the sidebar to rerun every test.")
 
 alpha = st.sidebar.select_slider("Significance level", options=[0.01, 0.05, 0.10], value=0.05)
 side = st.sidebar.radio("Alternative hypothesis", ["New page is better (one-sided)", "Pages differ (two-sided)"])
@@ -62,7 +65,7 @@ with c2:
     st.caption(f"Two-proportion z-test · 95% CI {q2['ci95'][0] * 100:.1f} to {q2['ci95'][1] * 100:.1f} points · relative lift {q2['relative_lift']:.0%}")
     st.bar_chart(pd.Series({"Old page": q2["rate_a"] * 100, "New page": q2["rate_b"] * 100}, name="Conversion (%)"))
 
-st.subheader("Does language matter?")
+st.subheader("Results by language")
 l1, l2 = st.columns(2)
 with l1:
     rates = df.groupby("language_preferred")["converted_flag"].mean().mul(100).rename("Conversion (%)")
@@ -74,7 +77,7 @@ with l2:
 
 st.divider()
 st.subheader("Plan the next test")
-st.write("How many users per group are needed to detect a given conversion lift?")
+st.write("This planner works out how many users each group needs to detect a given lift in conversion.")
 p1, p2, p3 = st.columns(3)
 base = p1.slider("Current conversion rate", 0.05, 0.90, 0.42, step=0.01)
 target = p2.slider("Conversion rate you want to detect", 0.06, 0.95, 0.50, step=0.01)
@@ -86,4 +89,4 @@ else:
     st.metric("Users needed per group", f"{n:,}")
     st.caption(f"This experiment had {len(new)} users per group, which gave {achieved_power(q2['rate_a'], q2['rate_b'], len(new), alpha):.0%} power for the lift it found.")
 
-st.markdown("[Source code and README](https://github.com/Collinsthe4th/ab-testing-web-feature)")
+st.markdown("[Source code and README](https://github.com/Collinsthe4th/ab-testing-web-feature) · Header photo from Unsplash.")
